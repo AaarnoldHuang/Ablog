@@ -1,6 +1,6 @@
 package views
 
-const head  = `
+const head = `
 <!doctype html>
 <html>
 <head>
@@ -48,7 +48,7 @@ const head  = `
 <div style="margin-left:30px;margin-top:100px;height:1500px;">
 
 `
-const tail  = `
+const tail = `
 	</div>
 </body>
 </html>
@@ -58,7 +58,6 @@ type webstyle struct {
 	head string
 	tail string
 }
-
 
 func GetHead() string {
 	return head

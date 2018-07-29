@@ -2,13 +2,13 @@ title = "Ablog"
 port = ":3003" 
 [admin]
 name = "arnold"
-passwd = "1412"
+passwd = "passwd"
 bio = "HAHAHAH"
 [database]
 server = "127.0.0.1"
 ports = [ 3306 ]
 dbname = "ablog_db"
-dbuser = "abog"
+dbuser = "ablog"
 dbpasswd = "ablog"
 connection_max = 5000
 enabled = true

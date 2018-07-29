@@ -2,10 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Ablog-blogs</title>
+    <title> {{.Title}}</title>
     <style>
         body {margin: 0;}
-        ul {
+        ull {
             list-style-type: none;
             margin: 0;
             padding: 0;
@@ -16,11 +16,11 @@
             width: 100%;
         }
 
-        li {
+        lii {
             float: left;
         }
 
-        li a {
+        lii a {
             display: block;
             color: white;
             text-align: center;
@@ -28,26 +28,22 @@
             text-decoration: none;
         }
 
-        li a:hover:not(.active) {
-            background-color:  #4FC3F7;
+        lii a:hover{
+            background-color: #01579b;
         }
-
-        .active {
-            background-color: #4fc3f7;
 
     </style>
 </head>
 
 <body>
-<ul>
-    <li><div style = "margin-left:30px;color:#FFFFFF"><h1>ABlog</h1></div></li>
-    <li><a href="home">主页</a></li>
-    <li><a class="active" href="blogs">博客</a></li>
-    <li><a href="about">关于</a></li>
-</ul>
+<ull>
+    <lii><div style = "margin-left:30px;color:#FFFFFF"><h1>ABlog</h1></div></lii>
+    <lii><a class="active" href="home">主页</a></lii>
+    <lii><a href="blogs">博客</a></lii>
+    <lii><a href="about">关于</a></lii>
+</ull>
 <div style="margin-left:30px;margin-top:100px;height:1500px;">
-
-    <h3> BBBBBBBLOGGGGGGGGSSSSSSSSSSSSSSS</h3>
+     {{.Body}}
 </div>
 </body>
 </html>

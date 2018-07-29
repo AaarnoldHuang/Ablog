@@ -1,4 +1,4 @@
-package controllers
+package models
 
 type tomlconfig struct {
 	Title string

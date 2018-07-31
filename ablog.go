@@ -15,6 +15,16 @@ import (
 	"os"
 )
 
+type getPost struct {
+	Id    string
+	Title string
+	Body  template.HTML
+}
+type postView struct {
+	Title string
+	Body  template.HTML
+}
+
 func main() {
 	var port string
 	_, err := os.Stat("./config/config.toml")
@@ -62,11 +72,33 @@ func main() {
 		}
 	})
 	m.Get("/home", func(r render.Render) {
-		r.HTML(200, "blogs", template.HTML("<h2>空空如也~~~</h2>"))
+		r.HTML(200, "blogs", template.HTML(`<h4>BIENVENIDO A GALLIFREY!<h4></br>
+		<h4>欢迎来到我的Gallifrey！</h4></br>`))
 	})
 	m.Get("/blogs", func(r render.Render) {
-		blog := string(blackfriday.Run([]byte(views.GetBlog())))
-		r.HTML(200, "postView", controllers.PostView("Test Blogs", template.HTML(blog)))
+		blog := ""
+		posts := models.GetAllBlogsfromDB()
+		for _, v := range posts {
+			blog += fmt.Sprintf("<li> <a class=\"active\" href=\"/blogs/%s\">%s</a> </li>  \n", v.Id, v.Title)
+		}
+		r.HTML(200, "blogs", template.HTML(blog))
+	})
+
+	m.Get("/blogs/**", func(params martini.Params, r render.Render) {
+		id := params["_1"]
+		if id == "blogs" {
+			r.HTML(200, "jump", "/blogs")
+		} else if id == "home" {
+			r.HTML(200, "jump", "/home")
+		} else if id == "about" {
+			r.HTML(200, "jump", "/about")
+		}
+		blog := models.GetABlogfromDB(id)
+		post := postView{
+			Title: blog.Title,
+			Body:  template.HTML(blackfriday.Run([]byte(blog.Body))),
+		}
+		r.HTML(200, "postView", post)
 	})
 	m.Get("/about", func(r render.Render) {
 		models.WriteBlogtoDB("'测试-Martini介绍'", views.GetBlog(), "'published'", "''")

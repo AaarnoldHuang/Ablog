@@ -1,14 +1,15 @@
-title = "Ablog" 
-port = ":3003" 
-[admin]
-name = "arnold"
-passwd = "passwd"
-bio = "HAHAHAH"
+title = "hehe" 
+port = ":3004" 
+first = false 
+ [admin]
+name = "1"
+passwd = "1"
+bio = "11"
 [database]
 server = "127.0.0.1"
 ports = [ 3306 ]
 dbname = "ablog_db"
-dbuser = "ablog"
+dbuser = "abog"
 dbpasswd = "ablog"
 connection_max = 5000
 enabled = true

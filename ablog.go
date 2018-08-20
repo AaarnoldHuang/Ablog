@@ -3,7 +3,6 @@ package main
 import (
 	"./controllers"
 	"./models"
-	"./views"
 	"fmt"
 	"github.com/go-martini/martini"
 	_ "github.com/go-sql-driver/mysql"
@@ -12,7 +11,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
-	"os"
+	"sort"
 )
 
 type getPost struct {
@@ -27,11 +26,10 @@ type postView struct {
 
 func main() {
 	var port string
-	_, err := os.Stat("./config/config.toml")
-	if err == nil {
-		port = models.Config().Port
-	} else {
+	if models.Config().First {
 		port = ":3000"
+	} else {
+		port = models.Config().Port
 	}
 	m := martini.Classic()
 	m.Use(render.Renderer(render.Options{
@@ -39,12 +37,7 @@ func main() {
 		Extensions: []string{".tmpl", ".html"},
 	}))
 	m.Get("/", func(r render.Render) string {
-		if err != nil {
-			dstFile, createrr := os.Create("./config/config.toml")
-			if createrr != nil {
-				fmt.Println(createrr)
-			}
-			defer dstFile.Close()
+		if models.Config().First {
 			return `<head><meta http-equiv="refresh" content="10"><meta http-equiv="refresh" content="0;url=/newconfig"></head>`
 
 		}
@@ -77,10 +70,19 @@ func main() {
 	})
 	m.Get("/blogs", func(r render.Render) {
 		blog := ""
-		posts := models.GetAllBlogsfromDB()
-		for _, v := range posts {
-			blog += fmt.Sprintf("<li> <a class=\"active\" href=\"/blogs/%s\">%s</a> </li>  \n", v.Id, v.Title)
+		var keys []int
+		posts, result := models.GetAllBlogsfromDB()
+		if !result {
+			r.HTML(200, "blogs", "An error occurs while trying to connect to the database. Please contact your administrator！")
 		}
+		for k := range posts {
+			keys = append(keys, k)
+		}
+		sort.Sort(sort.Reverse(sort.IntSlice(keys)))
+		for _, k := range keys {
+			blog += fmt.Sprintf("<li> <a class=\"active\" href=\"/blogs/%s\">%s</a> </li>  \n", posts[k].Id, posts[k].Title)
+		}
+
 		r.HTML(200, "blogs", template.HTML(blog))
 	})
 
@@ -101,7 +103,6 @@ func main() {
 		r.HTML(200, "postView", post)
 	})
 	m.Get("/about", func(r render.Render) {
-		models.WriteBlogtoDB("'测试-Martini介绍'", views.GetBlog(), "'published'", "''")
 		r.HTML(200, "blogs", "我就是我")
 	})
 	m.RunOnAddr(port)

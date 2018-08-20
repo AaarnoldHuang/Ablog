@@ -3,6 +3,7 @@ package models
 type tomlconfig struct {
 	Title string
 	Port  string
+	First bool
 	Admin admin    `toml:"admin"`
 	DB    database `toml:"database"`
 }

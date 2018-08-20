@@ -14,7 +14,7 @@ type getPost struct {
 
 type getBlog struct {
 	Title string
-	Body  template.HTML
+	Body  string
 }
 
 const creattable string = "CREATE TABLE ablog_post (`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT," +
@@ -71,18 +71,22 @@ func GetABlogfromDB(id string) getBlog {
 			fmt.Println(errr)
 		}
 		post.Title = post_title
-		post.Body = template.HTML(post_content)
+		post.Body = post_content
 	}
+	defer db.Close()
 	return post
 }
 
-func GetAllBlogsfromDB() map[int]getPost {
+func GetAllBlogsfromDB() (map[int]getPost, bool) {
 	i := 0
 	posts := make(map[int]getPost)
-	db, _ := sql.Open("mysql", dbinfo)
+	db, dberr := sql.Open("mysql", dbinfo)
+	if dberr != nil {
+		return posts, false
+	}
 	res, err := db.Query("select * from ablog_post where post_status='published';")
 	if err != nil {
-		fmt.Println(err)
+		return posts, false
 	}
 	for res.Next() {
 		var post getPost
@@ -96,7 +100,7 @@ func GetAllBlogsfromDB() map[int]getPost {
 		var post_modified string
 		errr := res.Scan(&id, &post_date, &post_content, &post_title, &post_name, &post_status, &post_password, &post_modified)
 		if errr != nil {
-			fmt.Println(errr)
+			return posts, false
 		}
 		post.Id = id
 		post.Title = post_title
@@ -104,5 +108,6 @@ func GetAllBlogsfromDB() map[int]getPost {
 		posts[i] = post
 		i++
 	}
-	return posts
+	defer db.Close()
+	return posts, true
 }

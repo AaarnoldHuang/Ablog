@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sort"
+	"strings"
 )
 
 type getPost struct {
@@ -61,7 +62,7 @@ func main() {
 		config := []byte(controllers.Writeconfig(Title, Port, Username, Password, Bio, DBname, DBuser, DBpwd))
 		err := ioutil.WriteFile("./config/config.toml", config, 0644)
 		if err != nil {
-			fmt.Println(err)
+			panic(err)
 		}
 	})
 	m.Get("/home", func(r render.Render) {
@@ -98,14 +99,45 @@ func main() {
 		blog := models.GetABlogfromDB(id)
 		post := postView{
 			Title: blog.Title,
-			Body:  template.HTML(blackfriday.Run([]byte(blog.Body))),
+			Body:  blog.Body,
 		}
 		r.HTML(200, "postView", post)
 	})
 	m.Get("/about", func(r render.Render) {
 		r.HTML(200, "blogs", "我就是我")
 	})
+
+	m.Get("/ablog-admin", func(r render.Render) {
+		r.HTML(200, "login", "")
+	})
+	m.Post("/ablog-admin", func(res http.ResponseWriter, req *http.Request, r render.Render) {
+		req.ParseForm()
+		Username := req.Form["UserName"][0]
+		Passwd := req.Form["Password"][0]
+		if strings.Compare(Username, models.Config().Admin.Name) == 0 {
+			if strings.Compare(Passwd, models.Config().Admin.Passwd) == 0 {
+				r.HTML(200, "jump", "/home")
+			} else {
+				r.HTML(200, "jump", "/ablog-admin")
+			}
+		} else {
+			r.HTML(200, "jump", "/ablog-admin")
+		}
+	})
+
+	m.Get("/edit", func(r render.Render) {
+		r.HTML(200, "newPost", "")
+	})
+	m.Post("/edit", func(res http.ResponseWriter, req *http.Request, r render.Render) {
+		req.ParseForm()
+		Title := req.Form["Title"][0]
+		tempContext := string(blackfriday.Run([]byte(req.Form["Context"][0])))
+		Context := strings.Replace(strings.Replace(tempContext, "'", "''", -1), "\\", "\\\\", -1)
+		if models.WriteBlogtoDB(fmt.Sprintf("' %s'", Title), fmt.Sprintf("' %s '", Context), "\"published\"", "\"jj\"") {
+			r.HTML(200, "blogs", "我就是我")
+		}
+	})
+
 	m.RunOnAddr(port)
 	m.Run()
-
 }

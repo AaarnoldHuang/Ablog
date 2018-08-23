@@ -14,7 +14,7 @@ type getPost struct {
 
 type getBlog struct {
 	Title string
-	Body  string
+	Body  template.HTML
 }
 
 const creattable string = "CREATE TABLE ablog_post (`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT," +
@@ -60,7 +60,7 @@ func GetABlogfromDB(id string) getBlog {
 	for res.Next() {
 		var id string
 		var post_title string
-		var post_content string
+		var post_content template.HTML
 		var post_date string
 		var post_status string
 		var post_name string
@@ -68,7 +68,7 @@ func GetABlogfromDB(id string) getBlog {
 		var post_modified string
 		errr := res.Scan(&id, &post_date, &post_content, &post_title, &post_name, &post_status, &post_password, &post_modified)
 		if errr != nil {
-			fmt.Println(errr)
+			panic(err)
 		}
 		post.Title = post_title
 		post.Body = post_content
